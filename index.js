@@ -70,7 +70,20 @@ async function run() {
         const result = await users.find().toArray();
         res.send(result)
     })
-    
+    app.get('/getadmin/:email',verifyToken,async(req,res)=>{
+        const email= req.params.email;
+        if(email!=req.decoded.email){
+          return res.status(403).send({message: 'Forbidden'})
+        }
+        const query = { email: email};
+        const result= await users.findOne(query)
+        let admin=false;
+        if(result){
+            admin= result?.role==='admin'
+        }
+        res.send({admin});
+
+    })
 
     app.post('/adduser',async(req,res)=>{
         const userInfo= req.body;

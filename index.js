@@ -84,6 +84,20 @@ async function run() {
         res.send({admin});
 
     })
+    app.get('/getvolinteer/:email',verifyToken,async(req,res)=>{
+        const email= req.params.email;
+        if(email!=req.decoded.email){
+          return res.status(403).send({message: 'Forbidden'})
+        }
+        const query = { email: email};
+        const result= await users.findOne(query)
+        let volunteer=false;
+        if(result){
+            volunteer= result?.role==='volunteer'
+        }
+        res.send({volunteer});
+
+    })
 
     app.post('/adduser',async(req,res)=>{
         const userInfo= req.body;

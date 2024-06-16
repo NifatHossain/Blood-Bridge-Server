@@ -31,6 +31,18 @@ async function run() {
       const token= jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{ expiresIn: '1h' })
       res.send({token})
     })
+
+    app.post('/adduser',async(req,res)=>{
+        const userInfo= req.body;
+        const email= userInfo.email;
+        const query={email: email};
+        const existingUser= await users.findOne(query)
+        if(existingUser){
+          return res.send({message:'user alreay exists', insertedId: null})
+        }
+        const result= await users.insertOne(userInfo);
+        res.send(result)
+      })
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection

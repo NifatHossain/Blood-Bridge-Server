@@ -22,6 +22,15 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+
+    const database = client.db("blood-bridge");
+    const users = database.collection("users");
+
+    app.post('/jwt',async(req,res)=>{
+      const user= req.body;
+      const token= jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{ expiresIn: '1h' })
+      res.send({token})
+    })
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection

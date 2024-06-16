@@ -31,6 +31,46 @@ async function run() {
       const token= jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{ expiresIn: '1h' })
       res.send({token})
     })
+    const verifyToken=(req,res,next)=>{
+        if(!req.headers.authorization){
+          return res.status(401).send({message: 'Unauthorized access'})
+        }
+        const token= req.headers.authorization;
+        console.log({token})
+        jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,decoded)=>{
+          if(err){
+            return res.status(401).send({message: 'Unauthorized Access'})
+          }
+          req.decoded= decoded;
+          next();
+        })
+    }
+    const verifyAdmin=async(req,res,next)=>{
+        const email= req.decoded.email;
+        const query= {email:email}
+        const user= await users.findOne(query)
+        const isAdmin= user?.role==='admin'
+        if(!isAdmin){
+          return res.status(403).send({message: 'forbidden access'})
+        }
+        next();
+    }
+    const verifyVolunteer=async(req,res,next)=>{
+        const email= req.decoded.email;
+        const query= {email:email}
+        const user= await users.findOne(query)
+        const isVolunteer= user?.role==='volunteer'
+        if(!isVolunteer){
+          return res.status(403).send({message: 'forbidden access'})
+        }
+        next();
+    }
+    app.get('/users',verifyToken,verifyAdmin,async(req,res)=>{
+        // console.log(req.headers)
+        const result = await users.find().toArray();
+        res.send(result)
+    })
+    
 
     app.post('/adduser',async(req,res)=>{
         const userInfo= req.body;

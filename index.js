@@ -139,7 +139,21 @@ async function run() {
         res.send(result);
 
     })
-
+    app.patch('/updaterequeststatus/:id',async(req,res)=>{
+        const id= req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const donarName= req.body.donarName;
+        const donarEmail= req.body.donarEmail;
+        const updateDoc = {
+            $set: {
+              status: 'inprogress',
+              donarName: donarName,
+              donarEmail: donarEmail
+            }
+        };
+        const result = await requestCollections.updateOne(filter, updateDoc);  
+        res.send(result)
+    })
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection

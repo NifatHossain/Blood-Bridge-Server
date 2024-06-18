@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const cors= require('cors');
+var jwt = require('jsonwebtoken');
 const port= process.env.PORT || 5000;
 require('dotenv').config()
 //middleware
@@ -25,6 +26,7 @@ async function run() {
 
     const database = client.db("blood-bridge");
     const users = database.collection("users");
+    const requestCollections = database.collection("requestCollections");
 
     app.post('/jwt',async(req,res)=>{
       const user= req.body;
@@ -109,7 +111,22 @@ async function run() {
         }
         const result= await users.insertOne(userInfo);
         res.send(result)
-      })
+    })
+    app.post('/donationrequest',async(req,res)=>{
+        const requestInfo= req.body;
+        const result= await requestCollections.insertOne(requestInfo);
+        res.send(result)
+    })
+    app.get('/getdonationrequests/:email',verifyToken,async(req,res)=>{
+        const email= req.params.email;
+        const query = { email: email};
+        const options = {
+            sort: { donationDate: -1 }
+        };
+        const result = await requestCollections.find(query,options).toArray();
+        res.send(result)
+    })
+
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection

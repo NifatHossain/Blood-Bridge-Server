@@ -9,7 +9,7 @@ app.use(cors())
 app.use(express.json());
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.mtdunhe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -119,12 +119,19 @@ async function run() {
     })
     app.get('/getdonationrequests/:email',verifyToken,async(req,res)=>{
         const email= req.params.email;
-        const query = { email: email};
+        const query = { userEmail: email};
         const options = {
             sort: { donationDate: -1 }
         };
         const result = await requestCollections.find(query,options).toArray();
         res.send(result)
+    })
+    app.delete('/deleterequest/:id',verifyToken,async(req,res)=>{
+        const id= req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await requestCollections.deleteOne(query);
+        res.send(result);
+
     })
 
     // Connect the client to the server	(optional starting in v4.7)

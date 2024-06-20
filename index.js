@@ -268,6 +268,29 @@ async function run() {
         const result= await articleCollections.insertOne(requestInfo);
         res.send(result)
     })
+    app.get('/getallarticles',verifyToken,verifyModerator,async(req,res)=>{
+      const result = await articleCollections.find().toArray();
+      res.send(result)
+    })
+    app.patch('/modifyarticlestatus',verifyToken,verifyAdmin,async(req,res)=>{
+      const id= req.query.id;
+      const status= req.query.status;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+          $set: {
+            status: status
+          }
+      };
+      const result = await articleCollections.updateOne(filter, updateDoc);  
+      res.send(result)
+    })
+    app.delete('/deletearticle/:id',verifyToken,verifyAdmin,async(req,res)=>{
+      const id= req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await articleCollections.deleteOne(query);
+      res.send(result);
+
+    })
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection

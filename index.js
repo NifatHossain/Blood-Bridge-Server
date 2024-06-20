@@ -208,6 +208,31 @@ async function run() {
         const result = await requestCollections.updateOne(filter, updateDoc);  
         res.send(result)
     })
+    
+    app.patch('/modifyuserstatus',async(req,res)=>{
+        const id= req.query.id;
+        const status= req.query.status;
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+            $set: {
+              status: status
+            }
+        };
+        const result = await users.updateOne(filter, updateDoc);  
+        res.send(result)
+    })
+    app.patch('/modifyuserrole',async(req,res)=>{
+        const id= req.query.id;
+        const role= req.query.role;
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+            $set: {
+              role: role
+            }
+        };
+        const result = await users.updateOne(filter, updateDoc);  
+        res.send(result)
+    })
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection

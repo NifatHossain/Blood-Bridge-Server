@@ -67,7 +67,7 @@ async function run() {
         }
         next();
     }
-    app.get('/users',verifyToken,verifyAdmin,async(req,res)=>{
+    app.get('/getallusers',verifyToken,verifyAdmin,async(req,res)=>{
         // console.log(req.headers)
         const result = await users.find().toArray();
         res.send(result)
@@ -121,7 +121,25 @@ async function run() {
         const email= req.params.email;
         const query = { userEmail: email};
         const options = {
-            sort: { donationDate: -1 }
+            sort: { _id: -1 }
+        };
+        const result = await requestCollections.find(query,options).toArray();
+        res.send(result)
+    })
+    app.get('/getfilteredrequests',verifyToken,async(req,res)=>{
+        const email= req.query?.email;
+        const filterCondt= req.query?.filter;
+        const query = { $and: [ { userEmail: email, status: filterCondt } ] };
+        const options = {
+            sort: { _id: -1 }
+        };
+        const result = await requestCollections.find(query,options).toArray();
+        res.send(result)
+    })
+    app.get('/getalldonationrequests',async(req,res)=>{
+        const query = { status: 'pending'};
+        const options = {
+            sort: { _id: -1 }
         };
         const result = await requestCollections.find(query,options).toArray();
         res.send(result)
@@ -161,6 +179,30 @@ async function run() {
         const updateDoc = {
             $set: {
               status: status
+            }
+        };
+        const result = await requestCollections.updateOne(filter, updateDoc);  
+        res.send(result)
+    })
+    app.patch('/updaterequestdata/:id',async(req,res)=>{
+        const id= req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const district= req.body.district;
+        const upzilla= req.body.upzilla;
+        const hospitalName= req.body.hospitalName;
+        const fullAddress= req.body.fullAddress;
+        const donationDate= req.body.donationDate;
+        const donationTime= req.body.donationTime;
+        const patientDetails= req.body.patientDetails;
+        const updateDoc = {
+            $set: {
+              district:district,
+              upzilla:upzilla,
+              hospitalName:hospitalName,
+              fullAddress:fullAddress,
+              donationDate:donationDate,
+              donationTime:donationTime,
+              patientDetails:patientDetails
             }
         };
         const result = await requestCollections.updateOne(filter, updateDoc);  

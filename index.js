@@ -78,7 +78,7 @@ async function run() {
         }
         next();
     }
-    app.get('/getallusers',verifyToken,verifyAdmin,async(req,res)=>{
+    app.get('/getallusers',verifyToken,verifyModerator,async(req,res)=>{
         // console.log(req.headers)
         const result = await users.find().toArray();
         res.send(result)
@@ -170,7 +170,7 @@ async function run() {
         const result = await requestCollections.find(query,options).toArray();
         res.send(result)
     })
-    app.get('/getalldonationrequests',verifyToken,verifyAdmin,async(req,res)=>{
+    app.get('/getalldonationrequests',verifyToken,verifyModerator,async(req,res)=>{
         const result = await requestCollections.find().toArray();
         res.send(result)
     })
@@ -304,6 +304,17 @@ async function run() {
       const query = { _id: new ObjectId(id)};
       const result = await articleCollections.findOne(query);
       res.send(result)
+  })
+  app.get('/searchdonar',async(req,res)=>{
+    const district= req.query?.district;
+    const upzilla= req.query?.upzilla;
+    const blood_group= req.query?.blood_group;
+    const query = { $and: [ { district: district, upzilla: upzilla, blood_group:blood_group} ] };
+    const options = {
+        sort: { _id: -1 }
+    };
+    const result = await users.find(query,options).toArray();
+    res.send(result)
   })
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();

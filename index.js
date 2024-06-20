@@ -100,6 +100,20 @@ async function run() {
         res.send({volunteer});
 
     })
+    app.get('/getmoderator/:email',verifyToken,async(req,res)=>{
+        const email= req.params.email;
+        if(email!=req.decoded.email){
+          return res.status(403).send({message: 'Forbidden'})
+        }
+        const query = { email: email};
+        const result= await users.findOne(query)
+        let moderator=false;
+        if(result){
+            moderator= (result?.role==='admin' || result?.role==='volunteer')
+        }
+        res.send({moderator});
+
+    })
 
     app.post('/adduser',async(req,res)=>{
         const userInfo= req.body;

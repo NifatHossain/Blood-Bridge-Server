@@ -291,6 +291,20 @@ async function run() {
       res.send(result);
 
     })
+    app.get('/getpublishedarticles',async(req,res)=>{
+      const query = { status: 'published'};
+      const options = {
+          sort: { _id: -1 }
+      };
+      const result = await articleCollections.find(query,options).toArray();
+      res.send(result)
+    })
+    app.get('/getblogdetails/:id',async(req,res)=>{
+      const id= req.params.id;
+      const query = { _id: new ObjectId(id)};
+      const result = await articleCollections.findOne(query);
+      res.send(result)
+  })
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection

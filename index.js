@@ -27,6 +27,7 @@ async function run() {
     const database = client.db("blood-bridge");
     const users = database.collection("users");
     const requestCollections = database.collection("requestCollections");
+    const articleCollections = database.collection("articleCollections");
 
     app.post('/jwt',async(req,res)=>{
       const user= req.body;
@@ -63,6 +64,16 @@ async function run() {
         const user= await users.findOne(query)
         const isVolunteer= user?.role==='volunteer'
         if(!isVolunteer){
+          return res.status(403).send({message: 'forbidden access'})
+        }
+        next();
+    }
+    const verifyModerator=async(req,res,next)=>{
+        const email= req.decoded.email;
+        const query= {email:email}
+        const user= await users.findOne(query)
+        const isModerator= (user?.role==='admin' || user?.role==='volunteer')
+        if(!isModerator){
           return res.status(403).send({message: 'forbidden access'})
         }
         next();
@@ -250,6 +261,11 @@ async function run() {
             }
         };
         const result = await users.updateOne(filter, updateDoc);  
+        res.send(result)
+    })
+    app.post('/createcontent',verifyToken,verifyModerator,async(req,res)=>{
+        const requestInfo= req.body;
+        const result= await articleCollections.insertOne(requestInfo);
         res.send(result)
     })
     // Connect the client to the server	(optional starting in v4.7)

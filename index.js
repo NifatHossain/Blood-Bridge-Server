@@ -86,7 +86,7 @@ async function run() {
         res.send({admin});
 
     })
-    app.get('/getvolinteer/:email',verifyToken,async(req,res)=>{
+    app.get('/getvolunteer/:email',verifyToken,async(req,res)=>{
         const email= req.params.email;
         if(email!=req.decoded.email){
           return res.status(403).send({message: 'Forbidden'})
@@ -112,7 +112,7 @@ async function run() {
         const result= await users.insertOne(userInfo);
         res.send(result)
     })
-    app.post('/donationrequest',async(req,res)=>{
+    app.post('/donationrequest',verifyToken,async(req,res)=>{
         const requestInfo= req.body;
         const result= await requestCollections.insertOne(requestInfo);
         res.send(result)
@@ -126,7 +126,8 @@ async function run() {
         const result = await requestCollections.find(query,options).toArray();
         res.send(result)
     })
-    app.get('/getfilteredrequests',verifyToken,async(req,res)=>{
+    //not using
+    app.get('/getfilteredrequests',verifyToken,verifyAdmin,async(req,res)=>{
         const email= req.query?.email;
         const filterCondt= req.query?.filter;
         const query = { $and: [ { userEmail: email, status: filterCondt } ] };
@@ -136,12 +137,16 @@ async function run() {
         const result = await requestCollections.find(query,options).toArray();
         res.send(result)
     })
-    app.get('/getalldonationrequests',async(req,res)=>{
+    app.get('/getallpendingdonationrequests',async(req,res)=>{
         const query = { status: 'pending'};
         const options = {
             sort: { _id: -1 }
         };
         const result = await requestCollections.find(query,options).toArray();
+        res.send(result)
+    })
+    app.get('/getalldonationrequests',verifyToken,verifyAdmin,async(req,res)=>{
+        const result = await requestCollections.find().toArray();
         res.send(result)
     })
     app.get('/getdonationrequestdetails/:id',verifyToken,async(req,res)=>{
@@ -157,7 +162,7 @@ async function run() {
         res.send(result);
 
     })
-    app.patch('/updaterequeststatus/:id',async(req,res)=>{
+    app.patch('/updaterequeststatus/:id',verifyToken,async(req,res)=>{
         const id= req.params.id;
         const filter = { _id: new ObjectId(id) };
         const donarName= req.body.donarName;
@@ -172,7 +177,7 @@ async function run() {
         const result = await requestCollections.updateOne(filter, updateDoc);  
         res.send(result)
     })
-    app.patch('/modifyrequeststatus',async(req,res)=>{
+    app.patch('/modifyrequeststatus',verifyToken,async(req,res)=>{
         const id= req.query.id;
         const status= req.query.status;
         const filter = { _id: new ObjectId(id) };
@@ -184,7 +189,7 @@ async function run() {
         const result = await requestCollections.updateOne(filter, updateDoc);  
         res.send(result)
     })
-    app.patch('/updaterequestdata/:id',async(req,res)=>{
+    app.patch('/updaterequestdata/:id',verifyToken,async(req,res)=>{
         const id= req.params.id;
         const filter = { _id: new ObjectId(id) };
         const district= req.body.district;
@@ -209,7 +214,7 @@ async function run() {
         res.send(result)
     })
     
-    app.patch('/modifyuserstatus',async(req,res)=>{
+    app.patch('/modifyuserstatus',verifyToken,verifyAdmin,async(req,res)=>{
         const id= req.query.id;
         const status= req.query.status;
         const filter = { _id: new ObjectId(id) };
@@ -221,7 +226,7 @@ async function run() {
         const result = await users.updateOne(filter, updateDoc);  
         res.send(result)
     })
-    app.patch('/modifyuserrole',async(req,res)=>{
+    app.patch('/modifyuserrole',verifyToken,verifyAdmin,async(req,res)=>{
         const id= req.query.id;
         const role= req.query.role;
         const filter = { _id: new ObjectId(id) };

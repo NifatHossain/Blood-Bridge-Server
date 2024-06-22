@@ -116,6 +116,20 @@ async function run() {
         res.send({volunteer});
 
     })
+    app.get('/getisblocked/:email',verifyToken,async(req,res)=>{
+        const email= req.params.email;
+        if(email!=req.decoded.email){
+          return res.status(403).send({message: 'Forbidden'})
+        }
+        const query = { email: email};
+        const result= await users.findOne(query)
+        let isBlocked=false;
+        if(result){
+            isBlocked= result?.status==='active'
+        }
+        res.send({isBlocked});
+
+    })
     app.get('/getmoderator/:email',verifyToken,async(req,res)=>{
         const email= req.params.email;
         if(email!=req.decoded.email){

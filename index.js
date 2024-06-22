@@ -321,6 +321,38 @@ async function run() {
     const result = await users.find(query,options).toArray();
     res.send(result)
   })
+  app.get('/getprofileinfo/:email',verifyToken,async(req,res)=>{
+    const email= req.params.email;
+    const query = { email: email};
+    const result = await users.findOne(query);
+    res.send(result)
+  })
+  app.patch('/updateprofiledata/:email',verifyToken,async(req,res)=>{
+    const email= req.params.email;
+    const filter = { email: email };
+    const name= req.body.name;
+    const birthDate= req.body.birthDate;
+    const image= req.body.image;
+    const gender= req.body.gender;
+    const district= req.body.district;
+    const upzilla= req.body.upzilla;
+    const blood_group= req.body.blood_group;
+    const updateDoc = {
+        $set: {
+          name: name,
+          email: email,
+          birthDate: birthDate,
+          image: image,
+          gender: gender,
+          district: district,
+          upzilla: upzilla,
+          blood_group: blood_group
+
+        }
+    };
+    const result = await users.updateOne(filter, updateDoc);  
+    res.send(result)
+  })
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
